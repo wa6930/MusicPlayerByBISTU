@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_like_songs"
+        android:icon="@drawable/menu_star"
+        android:title="@string/title_like_song" />
+
+    <item
+        android:id="@+id/navigation_song_list"
+        android:icon="@drawable/menu_song_list"
+        android:title="@string/title_song_list" />
+
+    <item
+        android:id="@+id/navigation_show_list"
+        android:icon="@drawable/menu_show_list"
+        android:title="@string/title_show_list" />
+
+</menu>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_song_list">
+
+    <fragment
+        android:id="@+id/navigation_like_songs"
+        android:name="com.example.erjike.bistu.MusicPlayer.ui.home.LikeSongsFragment"
+        android:label="@string/title_like_song"
+        tools:layout="@layout/fragment_like_songs" />
+
+    <fragment
+        android:id="@+id/navigation_song_list"
+        android:name="com.example.erjike.bistu.MusicPlayer.ui.dashboard.SongListFragment"
+        android:label="@string/title_song_list"
+        tools:layout="@layout/fragment_song_list" />
+
+    <fragment
+        android:id="@+id/navigation_show_list"
+        android:name="com.example.erjike.bistu.MusicPlayer.ui.notifications.ShowListFragment"
+        android:label="@string/title_show_list"
+        tools:layout="@layout/fragment_show_list" />
+
+</navigation>
