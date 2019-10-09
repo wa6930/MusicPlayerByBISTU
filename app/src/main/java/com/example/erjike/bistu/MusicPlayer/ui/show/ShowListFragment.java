@@ -1,4 +1,4 @@
-package com.example.erjike.bistu.MusicPlayer.ui.notifications;
+package com.example.erjike.bistu.MusicPlayer.ui.show;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/navigation_like_songs"
-        android:name="com.example.erjike.bistu.MusicPlayer.ui.home.LikeSongsFragment"
+        android:name="com.example.erjike.bistu.MusicPlayer.ui.like.LikeSongsFragment"
         android:label="@string/title_like_song"
         tools:layout="@layout/fragment_like_songs" />
 
     <fragment
         android:id="@+id/navigation_song_list"
-        android:name="com.example.erjike.bistu.MusicPlayer.ui.dashboard.SongListFragment"
+        android:name="com.example.erjike.bistu.MusicPlayer.ui.list.SongListFragment"
         android:label="@string/title_song_list"
         tools:layout="@layout/fragment_song_list" />
 
     <fragment
         android:id="@+id/navigation_show_list"
-        android:name="com.example.erjike.bistu.MusicPlayer.ui.notifications.ShowListFragment"
+        android:name="com.example.erjike.bistu.MusicPlayer.ui.show.ShowListFragment"
         android:label="@string/title_show_list"
         tools:layout="@layout/fragment_show_list" />
 

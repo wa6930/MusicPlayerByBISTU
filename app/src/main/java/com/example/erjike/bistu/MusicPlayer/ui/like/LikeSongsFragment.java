@@ -1,4 +1,4 @@
-package com.example.erjike.bistu.MusicPlayer.ui.dashboard;
+package com.example.erjike.bistu.MusicPlayer.ui.like;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,17 +14,17 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.erjike.bistu.MusicPlayer.R;
 
-public class SongListFragment extends Fragment {
+public class LikeSongsFragment extends Fragment {
 
-    private SongListViewModel songListViewModel;
+    private LikeSongsViewModel likeSongsViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        songListViewModel =
-                ViewModelProviders.of(this).get(SongListViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_song_list, container, false);
-        final TextView textView = root.findViewById(R.id.text_dashboard);
-        songListViewModel.getText().observe(this, new Observer<String>() {
+        likeSongsViewModel =
+                ViewModelProviders.of(this).get(LikeSongsViewModel.class);
+        View root = inflater.inflate(R.layout.fragment_like_songs, container, false);
+        final TextView textView = root.findViewById(R.id.text_home);
+        likeSongsViewModel.getText().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);

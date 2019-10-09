@@ -3,4 +3,6 @@
     <string name="title_like_song">喜欢的音乐</string>
     <string name="title_song_list">当前歌单</string>
     <string name="title_show_list">所有歌单</string>
+    <string name="show_list_playStyle">歌单播放模式</string>
+    <string name="show_list_addSong">添加歌曲</string>
 </resources>

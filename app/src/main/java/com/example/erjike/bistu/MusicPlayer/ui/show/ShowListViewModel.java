@@ -1,16 +1,16 @@
-package com.example.erjike.bistu.MusicPlayer.ui.dashboard;
+package com.example.erjike.bistu.MusicPlayer.ui.show;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class SongListViewModel extends ViewModel {
+public class ShowListViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public SongListViewModel() {
+    public ShowListViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("This is notifications fragment");
     }
 
     public LiveData<String> getText() {
