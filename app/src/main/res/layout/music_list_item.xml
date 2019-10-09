@@ -59,7 +59,7 @@
                 android:id="@+id/list_music_move_or_add"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/trash_can"
+                app:srcCompat="@drawable/add"
                 android:layout_weight="1"/>
             <ImageView
                 android:id="@+id/list_music_add_to_like"

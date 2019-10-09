@@ -1,6 +1,6 @@
 package com.example.erjike.bistu.MusicPlayer.Gson;
 
-public class GetIyrics {
+public class Getlyrics {
 
 
     /**
