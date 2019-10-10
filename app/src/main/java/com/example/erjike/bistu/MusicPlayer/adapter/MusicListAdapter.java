@@ -77,6 +77,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         holder.musicName.setText(musicListModel.getMusicName());
         holder.musicMaker.setText(musicListModel.getMusicMaker());
 
+
     }
 
     @Override

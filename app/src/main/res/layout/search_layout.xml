@@ -23,7 +23,6 @@
         app:srcCompat="@drawable/zoom"
         android:layout_weight="1"/>
 
-
 </LinearLayout>
 
 

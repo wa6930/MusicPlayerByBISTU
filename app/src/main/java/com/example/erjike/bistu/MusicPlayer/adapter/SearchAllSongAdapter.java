@@ -15,7 +15,7 @@ import com.example.erjike.bistu.MusicPlayer.R;
 
 import java.util.List;
 
-public class SearchLikeSongAdapter extends RecyclerView.Adapter<SearchLikeSongAdapter.ViewHolder> {
+public class SearchAllSongAdapter extends RecyclerView.Adapter<SearchAllSongAdapter.ViewHolder> {
     Context mContext;
     List<String> nameList;//可以自己定义类型
     FragmentManager fragmentManager;
@@ -40,7 +40,7 @@ public class SearchLikeSongAdapter extends RecyclerView.Adapter<SearchLikeSongAd
     View view;
     TextView songName;
     //TODO 考虑是否让按钮可以实时显示是否在歌单内
-    public SearchLikeSongAdapter(Context mContext,List<String> nameList) {
+    public SearchAllSongAdapter(Context mContext, List<String> nameList) {
         this.mContext = mContext;
         this.nameList=nameList;
     }
