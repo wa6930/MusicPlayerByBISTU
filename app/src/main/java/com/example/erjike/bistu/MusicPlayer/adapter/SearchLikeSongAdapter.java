@@ -16,6 +16,11 @@ import java.util.List;
 public class SearchLikeSongAdapter extends RecyclerView.Adapter<SearchLikeSongAdapter.ViewHolder> {
     Context mContext;
     List<String> nameList;//可以自己定义类型
+
+    public void setNameList(List<String> nameList) {
+        this.nameList = nameList;
+    }
+
     View view;
     TextView songName;
     //TODO 考虑是否让按钮可以实时显示是否在歌单内
@@ -27,19 +32,22 @@ public class SearchLikeSongAdapter extends RecyclerView.Adapter<SearchLikeSongAd
     @NonNull
     @Override
     public SearchLikeSongAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         if (mContext == null) {
             mContext = parent.getContext();
         }
         view = LayoutInflater.from(mContext).inflate(R.layout.search_like_song_list_item, parent, false);//导入视图
         songName=(TextView)view.findViewById(R.id.search_list_music_name);
+        ViewHolder viewHolder=new ViewHolder(view);
         //TODO 实现对应几个按钮的绑定与功能
 
 
-        return null;
+        return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        songName.setText(nameList.get(position));
 
     }
 
@@ -53,8 +61,14 @@ public class SearchLikeSongAdapter extends RecyclerView.Adapter<SearchLikeSongAd
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView songName;
 
+        public void setSongName(TextView songName) {
+            this.songName = songName;
+        }
+
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+
             songName=(TextView)itemView.findViewById(R.id.search_list_music_name);
         }
     }
