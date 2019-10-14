@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.erjike.bistu.MusicPlayer.R;
+import com.example.erjike.bistu.MusicPlayer.model.SearchMusicModel;
 
 import java.util.List;
 
@@ -57,8 +58,6 @@ public class SearchLikeSongAdapter extends RecyclerView.Adapter<SearchLikeSongAd
         ViewHolder viewHolder=new ViewHolder(view);
         viewHolder.setFragmentManager(fragmentManager);
 
-        //TODO 实现对应几个按钮的绑定与功能
-
 
         return viewHolder;
     }
@@ -66,13 +65,7 @@ public class SearchLikeSongAdapter extends RecyclerView.Adapter<SearchLikeSongAd
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         songName.setText(nameList.get(position));
-        songName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText inputText=(EditText) inputTextView.findViewById(R.id.search_input_text);
-                inputText.setText(songName.getText());
-            }
-        });
+        /***此处输入按钮事件会导致holder中的数据与列表不一致而***/
 
     }
 
@@ -87,6 +80,8 @@ public class SearchLikeSongAdapter extends RecyclerView.Adapter<SearchLikeSongAd
         FragmentManager fragmentManager;
         TextView songName;
 
+
+
         public void setFragmentManager(FragmentManager fragmentManager) {
             this.fragmentManager = fragmentManager;
         }
@@ -100,6 +95,14 @@ public class SearchLikeSongAdapter extends RecyclerView.Adapter<SearchLikeSongAd
             super(itemView);
 
             songName=(TextView)itemView.findViewById(R.id.search_list_music_name);
+            songName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    EditText inputText=(EditText) inputTextView.findViewById(R.id.search_input_text);
+                    inputText.setText(songName.getText());
+                }
+            });
+
         }
     }
 }

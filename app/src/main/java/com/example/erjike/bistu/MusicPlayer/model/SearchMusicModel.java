@@ -4,16 +4,16 @@ public class SearchMusicModel {
     String musicId;
     String musicName;
     String artiseName;
-    String imagUrl;
+    String imagUri;
 
     public SearchMusicModel() {
     }
 
-    public SearchMusicModel(String musicId, String musicName, String artiseName, String imagUrl) {
+    public SearchMusicModel(String musicId, String musicName, String artiseName, String imagUri) {
         this.musicId = musicId;
         this.musicName = musicName;
         this.artiseName = artiseName;
-        this.imagUrl = imagUrl;
+        this.imagUri = imagUri;
     }
 
     public void setMusicId(String musicId) {
@@ -28,8 +28,8 @@ public class SearchMusicModel {
         this.artiseName = artiseName;
     }
 
-    public void setImagUrl(String imagUrl) {
-        this.imagUrl = imagUrl;
+    public void setImagUri(String imagUrl) {
+        this.imagUri = imagUrl;
     }
 
     public String getMusicId() {
@@ -44,7 +44,7 @@ public class SearchMusicModel {
         return artiseName;
     }
 
-    public String getImagUrl() {
-        return imagUrl;
+    public String getImagUri() {
+        return imagUri;
     }
 }

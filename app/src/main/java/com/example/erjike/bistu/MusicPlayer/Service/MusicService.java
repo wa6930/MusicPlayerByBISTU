@@ -5,7 +5,6 @@ import android.media.MediaPlayer;
 import android.os.Environment;
 import android.util.Log;
 
-import com.example.erjike.bistu.MusicPlayer.model.MusicListModel;
 
 import java.io.File;
 import java.io.FilenameFilter;

@@ -20,7 +20,7 @@ public class StringToCut {
             sentence=strArr[i];
             if(!sentence.equals("")&&sentence!=null){
                 sentencesList.add(sentence);
-                Log.i(TAG, "CutString: "+sentence);
+                //Log.i(TAG, "CutString: "+sentence);测试正常
             }
 
         }

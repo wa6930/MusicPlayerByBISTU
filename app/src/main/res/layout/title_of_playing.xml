@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorLightBlue"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/playing_music_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:srcCompat="@drawable/directional_left"
+            />
+
+        <TextView
+            android:id="@+id/playing_music_name"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:text="我是名字名字名字名字哦，你们是不可能看到我的啦啦啦啦拉拉阿拉啦啦啦啦啦啦啦啦啦啦啦啦"
+            android:layout_height="20dp"
+            android:layout_weight="1"
+            />
+        <ImageView
+            android:id="@+id/playing_music_microphone"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:srcCompat="@drawable/microphone"/>
+
+
+    </LinearLayout>
+
+</LinearLayout>

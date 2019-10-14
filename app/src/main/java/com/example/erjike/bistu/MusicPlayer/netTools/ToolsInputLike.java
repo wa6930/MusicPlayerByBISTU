@@ -2,12 +2,14 @@ package com.example.erjike.bistu.MusicPlayer.netTools;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.erjike.bistu.MusicPlayer.Gson.GetSearchSong;
 import com.example.erjike.bistu.MusicPlayer.Gson.Getlyrics;
 import com.example.erjike.bistu.MusicPlayer.Gson.InputLike;
 import com.example.erjike.bistu.MusicPlayer.StringTool.StringToCut;
+import com.example.erjike.bistu.MusicPlayer.db.SearchAllSongListDBHelper;
 import com.example.erjike.bistu.MusicPlayer.model.SearchMusicModel;
 import com.google.gson.Gson;
 
@@ -112,21 +114,22 @@ public class ToolsInputLike {
         return stringsList;
     }
 
+    //TODO,修改具体搜索，实现数据库本地转存
+    public static List<SearchMusicModel> getSearchSongs(String inputText,Context context) {
+        return getSearchSongs(inputText, null, null,context);
 
-    public static List<SearchMusicModel> getSearchSongs(String inputText) {
-        return getSearchSongs(inputText, null, null);
     }
 
-    public static List<SearchMusicModel> getSearchSongs(String inputText, String hostWhat, boolean IpTruePortFalse) {
+    public static List<SearchMusicModel> getSearchSongs(String inputText, String hostWhat, boolean IpTruePortFalse,Context context) {
         if (IpTruePortFalse) {
-            return getSearchSongs(inputText, hostWhat, null);
+            return getSearchSongs(inputText, hostWhat, null,context);
         } else {
-            return getSearchSongs(inputText, null, hostWhat);
+            return getSearchSongs(inputText, null, hostWhat,context);
         }
 
     }
 
-    public static List<SearchMusicModel> getSearchSongs(String inputText, String hostIP, String hostPort) {
+    public static List<SearchMusicModel> getSearchSongs(String inputText, String hostIP, String hostPort, final Context context) {
         String mHostIP = "localhost";
         String mHostPort = "3000";
         if (hostIP != null && !hostIP.equals("")) {
@@ -137,11 +140,12 @@ public class ToolsInputLike {
             mHostPort = hostPort;
         }
         String urlString = "http://" + mHostIP + ":" + mHostPort + "/search?keywords=" + inputText + "&type=1";
+        Log.i(TAG, "getSearchSongs: urlString:"+urlString);
         final List<SearchMusicModel> listSearchMusic = new ArrayList<SearchMusicModel>();
         HttpUtil.sendOkHttpRequest(urlString, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                Log.i(TAG, "onFailure: 网络内容接受失败");
+                Log.i(TAG, "onFailure: 网络内容接受失败+e:"+e.getMessage());
             }
 
             @Override
@@ -151,24 +155,33 @@ public class ToolsInputLike {
                     Gson gson = new Gson();
 
                     GetSearchSong translate = gson.fromJson(response.body().string(), GetSearchSong.class);
-
+                    SearchAllSongListDBHelper dbHelper=new SearchAllSongListDBHelper(context,"searchListSong.db",null,1);
+                    SQLiteDatabase db=dbHelper.getWritableDatabase();
+                    db.execSQL("delete from songList");
                     GetSearchSong.ResultBean resultBean = translate.getResult();
                     List<GetSearchSong.ResultBean.SongsBean> listSongsBean = resultBean.getSongs();
                     for (GetSearchSong.ResultBean.SongsBean songsBean : listSongsBean) {
                         SearchMusicModel searchMusicModel = new SearchMusicModel();
                         searchMusicModel.setMusicName(songsBean.getName());
+                        Log.i(TAG, "onResponse: getName:"+songsBean.getName());
                         searchMusicModel.setMusicId(String.valueOf(songsBean.getId()));
+                        Log.i(TAG, "onResponse: getId:"+songsBean.getId());
                         GetSearchSong.ResultBean.SongsBean.AlbumBean albumBean = songsBean.getAlbum();
                         GetSearchSong.ResultBean.SongsBean.AlbumBean.ArtistBean artistBean = albumBean.getArtist();
-                        searchMusicModel.setImagUrl(artistBean.getImg1v1Url());
+                        searchMusicModel.setImagUri(artistBean.getImg1v1Url());
+                        Log.i(TAG, "onResponse: getImag:"+artistBean.getImg1v1Url());
                         searchMusicModel.setArtiseName(artistBean.getName());
-                        listSearchMusic.add(searchMusicModel);
+                        Log.i(TAG, "onResponse: getArtist:"+songsBean.getArtists().get(0).getName());
+                        SearchAllSongListDBHelper.addSongToShowList(db,searchMusicModel,context);
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "onResponse: error+" + e.getMessage());
                 }
             }
         });
+        SearchAllSongListDBHelper dbHelper=new SearchAllSongListDBHelper(context,"searchListSong.db",null,1);
+        SQLiteDatabase db=dbHelper.getWritableDatabase();
+        listSearchMusic.addAll(SearchAllSongListDBHelper.getSearchSongList(db,context));
         return listSearchMusic;
     }
 
@@ -187,6 +200,7 @@ public class ToolsInputLike {
     }
 
     public static String getLyrics(String inputId, String hostIP, String hostPort) {
+        //TODO 未完成
         String mHostIP = "localhost";
         String mHostPort = "3000";
         if (hostIP != null && !hostIP.equals("")) {

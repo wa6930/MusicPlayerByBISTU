@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.erjike.bistu.MusicPlayer.adapter.SearchLikeSongAdapter;
 import com.example.erjike.bistu.MusicPlayer.netTools.ToolsInputLike;
@@ -64,7 +66,15 @@ public class SearchSongActivity extends AppCompatActivity {
         search_Image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO,跳转到另一个搜索歌曲界面，调用ToolsInputLike中的getSearchSong方法
+                if(inputEdit.getText().toString().length()!=0){
+                    Intent intent=new Intent(SearchSongActivity.this,SearchedActivity.class);
+                    intent.putExtra("name",inputEdit.getText().toString());
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(SearchSongActivity.this,"请输入要搜索的内容后，再点击搜索按钮！",Toast.LENGTH_LONG).show();
+                }
+
             }
         });
     }
