@@ -1,138 +1,143 @@
 package com.example.erjike.bistu.MusicPlayer.Service;
 
-import android.media.AudioManager;
+import android.app.Service;
+import android.content.Intent;
 import android.media.MediaPlayer;
-import android.os.Environment;
+import android.os.Binder;
+import android.os.IBinder;
 import android.util.Log;
 
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
+import com.example.erjike.bistu.MusicPlayer.adapter.PlayingListAdapter;
+import com.example.erjike.bistu.MusicPlayer.filesTool.PlayListSharedPerferences;
+import com.example.erjike.bistu.MusicPlayer.model.SearchMusicModel;
+
 import java.util.List;
 
-public class MusicService {
-    String TAG = "ErJike's MusicService";
-    private static final File PATH = Environment.getDataDirectory();//获取不同环境不同路径
-    public final int RANDOM = 1;
-    public final int IN_ORDER = 0;
-    public int nextType = 0;
-    public List<String> musicList;//存放音乐的绝对路径
-    public MediaPlayer player;
-    public int songNum;//当前播放的歌曲在list的下标
-    public String songName;//当前歌曲名
+import static android.media.MediaPlayer.*;
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
-    //虚拟类：用于实现查找所有.mp3文件
-    class MusicFilter implements FilenameFilter {
+public class MusicService extends Service {
+    private String url;
+    private String nextUrl;
+    private String lastUrl;
+    private MediaPlayer mediaPlayer;
 
-        @Override
-        public boolean accept(File file, String s) {
-            return (s.endsWith(".mp3"));//.mp3结尾为true
-        }
 
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "onCreate");
+        mediaPlayer = new MediaPlayer();//初始化mediaPlayer
 
     }
 
-    public MusicService() {
-        super();
-        //初始化
-        player = new MediaPlayer();
-        musicList = new ArrayList<String>();
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        url = intent.getStringExtra("MP3url");//通过intent获取关键url
+        //nextUrl = intent.getStringExtra("NextMP3url");//下一首歌的url地址
         try {
-            File MUSIC_PATH = new File(PATH, "music");//获取根目录下的music
-            if (MUSIC_PATH.listFiles(new MusicFilter()).length > 0) {//找到文件了
-                for (File file : MUSIC_PATH.listFiles(new MusicFilter())) {
-                    musicList.add(file.getAbsolutePath());
+            mediaPlayer.reset();
+
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.setLooping(false);//禁止单曲循环
+            mediaPlayer.prepareAsync();//网络音乐调用异步方法
+            mediaPlayer.setOnPreparedListener(new OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {//当加载完成后
+                    //mediaPlayer.start();
                 }
-
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG, "MusicService: 文件读取异常！");
-        }
-    }
-
-    /*******实现基本的播放，暂停，下一首，上一首************/
-    //播放
-    public void play() {
-        try {
-            player.reset();//重置多媒体
-            String dataSourse = musicList.get(songNum);//获得当前需要播放音乐的路径
-            player.setAudioSessionId(AudioManager.STREAM_MUSIC);//获取播放类型
-            player.setDataSource(dataSourse);//设定播放路径
-            player.prepare();//准备
-            player.start();//开始播放
-
-            //setOnConpletionListener 当该对象播放完成时发生
-            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            });
+            mediaPlayer.setOnCompletionListener(new OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
-                    next();//播放完成后，自动播放下一首
+                    mediaPlayer.stop();//停止播放
+
+                    // audio播放完成后自动触发：需要完成，如果歌单下一首存在，读取歌单下一首歌，创建新的MediaPlayer的操作
+
                 }
+
             });
 
 
         } catch (Exception e) {
-            Log.e(TAG, "play:播放异常，异常为：" + e.getMessage());
+            Log.e(TAG, "onBind: Exception message:" + e.getMessage());
         }
 
+        return new MusicService.MyBinder();//返回继承binder的自建类
     }
 
-    //继续播放
-    public void goPlay() {
-        int position = getCurrentProgress();
-        player.seekTo(position);//设置当前MediaPlayer的播放位置，单位毫秒
-        try {
-            player.prepare();
-
-        } catch (Exception e) {
-            Log.e(TAG, "goPlay: 发生异常，异常为：" + e.getMessage());
+    /*
+        关闭线程时调用
+     */
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d(TAG, "onUnbind");
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
         }
-        player.start();
-
+        return super.onUnbind(intent);
     }
 
-    //获取当前进度
-    public int getCurrentProgress() {
-        if(player!=null&player.isPlaying()){
-            return player.getCurrentPosition();
-        }
-        else if (player!=null & (!player.isPlaying())){
-            return player.getCurrentPosition();
+    public class MyBinder extends Binder {
 
-        }
+        String TAG = "ErJike's MusicService";
 
-        return 0;
-    }
-
-    //下一首
-    public void next() {
-        if (nextType == 0) {
-            //TODO 顺序播放
-        } else {
-            //TODO 随机播放
+        /*
+            true:播放中，false:暂停或者停止
+         */
+        public boolean isPlaying() {
+            if (mediaPlayer.isPlaying()) return true;
+            else return false;
         }
 
-    }
 
-    //上一首
-    public void last() {
-        if (nextType == 0) {
-            //TODO 顺序播放
-        } else {
-            //TODO 随机播放
+        //实现具体的播放功能
+        //播放
+        public void play() {
+            mediaPlayer.start();
+
+
         }
-    }
 
-    //暂停
-    public void pause() {
-        //TODO
-    }
+        //继续播放
+        public void goPray() {
+            mediaPlayer.start();
 
-    //停止
-    public void stop() {
-        //TODO
-    }
-    /*****************************************************/
+        }
 
+        public void goNextSong() {
+
+        }
+
+        //暂停
+        public void pause() {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+            }
+
+        }
+
+        //跳转到指定位置
+        public void seekToPosition(int position) {
+            mediaPlayer.seekTo(position);
+        }
+
+
+        /*
+            返回毫秒为单位的播放时间
+         */
+        public int getCurrenPostion() {
+            return mediaPlayer.getCurrentPosition();
+        }
+
+        //返回歌曲的长度，单位为毫秒
+        public int getDuration() {
+            return mediaPlayer.getDuration();
+        }
+
+
+    }
 }

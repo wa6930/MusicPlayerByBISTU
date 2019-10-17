@@ -21,6 +21,7 @@ public class HttpUtil {
         //发送请求，返回数据需要自己重写回调方法
         client.newCall(request).enqueue(callback);
 
+
     }
 
 }

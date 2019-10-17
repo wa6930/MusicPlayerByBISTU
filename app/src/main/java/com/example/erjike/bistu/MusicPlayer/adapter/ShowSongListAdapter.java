@@ -30,7 +30,6 @@ public class ShowSongListAdapter extends BaseExpandableListAdapter {
         TextView musicName;
         TextView artiseName;
         ImageView musicIcon;
-        //TODO 可以设计点击事件？或者在view中设置？
 
     }
 
@@ -93,6 +92,7 @@ public class ShowSongListAdapter extends BaseExpandableListAdapter {
             view=mInflater.inflate(R.layout.list_name_show_item,viewGroup,false);
             holderViewFather.title=(TextView)view.findViewById(R.id.list_name_text);
             holderViewFather.listIconType=(ImageView)view.findViewById(R.id.list_icon_type);
+
 
 
         }

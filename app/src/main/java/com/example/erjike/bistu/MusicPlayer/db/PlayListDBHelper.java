@@ -7,9 +7,10 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 /*
-用于显示当前歌单的本地化
+用于显示当前歌单的本地化（未使用，最后用链表实现的该功能）
  */
 public class PlayListDBHelper extends SQLiteOpenHelper {
+
 
     public static final String TABLE_NAME="playList";
     public static final String TABLE_LIST_1="songId";//歌曲id

@@ -5,5 +5,6 @@
     <color name="colorPrimaryLightBlue">#23CAF0</color>
     <color name="colorAccent">#D81B60</color>
     <color name="colorLightBlue">#CFEAFA</color>
+    <color name="colorWrite">#FFFFFF</color>
 
 </resources>

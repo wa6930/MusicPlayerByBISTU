@@ -5,4 +5,5 @@
     <string name="title_show_list">所有歌单</string>
     <string name="show_list_playStyle">歌单播放模式</string>
     <string name="show_list_addSong">添加歌曲</string>
+    <string name="clear_play_list">清空当前歌单</string>
 </resources>

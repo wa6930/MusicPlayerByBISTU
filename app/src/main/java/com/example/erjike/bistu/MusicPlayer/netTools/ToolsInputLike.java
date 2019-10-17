@@ -1,13 +1,16 @@
 package com.example.erjike.bistu.MusicPlayer.netTools;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.example.erjike.bistu.MusicPlayer.Gson.GetMp3Url;
 import com.example.erjike.bistu.MusicPlayer.Gson.GetSearchSong;
 import com.example.erjike.bistu.MusicPlayer.Gson.Getlyrics;
 import com.example.erjike.bistu.MusicPlayer.Gson.InputLike;
+import com.example.erjike.bistu.MusicPlayer.R;
 import com.example.erjike.bistu.MusicPlayer.StringTool.StringToCut;
 import com.example.erjike.bistu.MusicPlayer.db.SearchAllSongListDBHelper;
 import com.example.erjike.bistu.MusicPlayer.model.SearchMusicModel;
@@ -18,6 +21,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -114,7 +120,7 @@ public class ToolsInputLike {
         return stringsList;
     }
 
-    //TODO,修改具体搜索，实现数据库本地转存
+    //修改具体搜索，实现数据库本地转存
     public static List<SearchMusicModel> getSearchSongs(String inputText,Context context) {
         return getSearchSongs(inputText, null, null,context);
 
@@ -140,9 +146,9 @@ public class ToolsInputLike {
             mHostPort = hostPort;
         }
         String urlString = "http://" + mHostIP + ":" + mHostPort + "/search?keywords=" + inputText + "&type=1";
-        Log.i(TAG, "getSearchSongs: urlString:"+urlString);
+        //Log.i(TAG, "getSearchSongs: urlString:"+urlString);
         final List<SearchMusicModel> listSearchMusic = new ArrayList<SearchMusicModel>();
-        HttpUtil.sendOkHttpRequest(urlString, new Callback() {
+        Callback callback=new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Log.i(TAG, "onFailure: 网络内容接受失败+e:"+e.getMessage());
@@ -163,26 +169,41 @@ public class ToolsInputLike {
                     for (GetSearchSong.ResultBean.SongsBean songsBean : listSongsBean) {
                         SearchMusicModel searchMusicModel = new SearchMusicModel();
                         searchMusicModel.setMusicName(songsBean.getName());
-                        Log.i(TAG, "onResponse: getName:"+songsBean.getName());
+                        //Log.i(TAG, "onResponse: getName:"+songsBean.getName());
                         searchMusicModel.setMusicId(String.valueOf(songsBean.getId()));
-                        Log.i(TAG, "onResponse: getId:"+songsBean.getId());
+                        //Log.i(TAG, "onResponse: getId:"+songsBean.getId());
                         GetSearchSong.ResultBean.SongsBean.AlbumBean albumBean = songsBean.getAlbum();
                         GetSearchSong.ResultBean.SongsBean.AlbumBean.ArtistBean artistBean = albumBean.getArtist();
                         searchMusicModel.setImagUri(artistBean.getImg1v1Url());
-                        Log.i(TAG, "onResponse: getImag:"+artistBean.getImg1v1Url());
-                        searchMusicModel.setArtiseName(artistBean.getName());
-                        Log.i(TAG, "onResponse: getArtist:"+songsBean.getArtists().get(0).getName());
+                        //Log.i(TAG, "onResponse: getImag:"+artistBean.getImg1v1Url());
+                        searchMusicModel.setArtiseName(songsBean.getArtists().get(0).getName());
+                        //Log.i(TAG, "onResponse: getArtist:"+songsBean.getArtists().get(0).getName());
                         SearchAllSongListDBHelper.addSongToShowList(db,searchMusicModel,context);
                     }
+                    db.close();
+
+
                 } catch (Exception e) {
                     Log.e(TAG, "onResponse: error+" + e.getMessage());
                 }
             }
-        });
+        };
+        HttpUtil.sendOkHttpRequest(urlString, callback);
+        final ProgressDialog progressDialog = new ProgressDialog(context);
+        try {
+
+            TimeUnit.SECONDS.sleep(1);//睡眠一秒从而保证异步内容完成
+        }catch (Exception e){
+            Log.e(TAG, "getSearchSongs: e.Message:"+e.getMessage());
+        }
+
         SearchAllSongListDBHelper dbHelper=new SearchAllSongListDBHelper(context,"searchListSong.db",null,1);
         SQLiteDatabase db=dbHelper.getWritableDatabase();
         listSearchMusic.addAll(SearchAllSongListDBHelper.getSearchSongList(db,context));
+        db.close();
+
         return listSearchMusic;
+
     }
 
     //获得歌词
@@ -233,4 +254,59 @@ public class ToolsInputLike {
         });
         return output[0];
     }
+    //获得歌曲url
+    public static String getMp3Url(String inputId, String hostWhat, boolean IpTruePortFalse,Context context) {
+        if (IpTruePortFalse) {
+            return getMp3Url(inputId, hostWhat, null,context);
+        } else {
+            return getMp3Url(inputId, null, hostWhat,context);
+        }
+
+    }
+
+    public static String getMp3Url(String inputId, String hostIP, String hostPort, final Context context) {
+        String mHostIP = "localhost";
+        String mHostPort = "3000";
+        if (hostIP != null && !hostIP.equals("")) {
+            mHostIP = hostIP;
+        }
+
+        if (hostPort != null && !hostPort.equals("")) {
+            mHostPort = hostPort;
+        }
+        String urlString = "http://" + mHostIP + ":" + mHostPort + "/song/url?id=" + inputId ;
+        Callback callback=new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Log.i(TAG, "onFailure: 网络内容接受失败+e:"+e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+
+                try {
+                    Gson gson = new Gson();
+
+                    GetMp3Url translate = gson.fromJson(response.body().string(), GetMp3Url.class);
+                    GetMp3Url.DataBean dataBean=translate.getData().get(0);
+                    SharedPreferences sp=context.getSharedPreferences("musicUrl",context.MODE_PRIVATE);
+                    SharedPreferences.Editor ed=sp.edit();
+                    ed.clear();
+                    ed.putString("url",dataBean.getUrl());
+                    ed.commit();
+
+                } catch (Exception e) {
+                    Log.e(TAG, "onResponse: error+" + e.getMessage());
+                }
+            }
+        };
+        HttpUtil.sendOkHttpRequest(urlString, callback);
+        SharedPreferences sp=context.getSharedPreferences("musicUrl",context.MODE_PRIVATE);
+        return sp.getString("url","");
+
+    }
+
+
+
+
 }

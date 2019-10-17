@@ -18,15 +18,35 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:padding="10dp"
+                    android:padding="2dp"
                     android:text="@string/show_list_playStyle"
-                    android:textSize="16dp" />
+                    android:textSize="10dp" />
                     <ImageView
                         android:id="@+id/music_list_button_of_change"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         app:srcCompat="@drawable/repeat" />
                 </LinearLayout>
+
+                <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="2dp"
+                    android:text="@string/show_list_addSong"
+                    android:textSize="10dp" />
+                <ImageView
+                    android:id="@+id/music_list_add"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:srcCompat="@drawable/add" />
+
+
+            </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -36,14 +56,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:padding="10dp"
-                        android:text="@string/show_list_addSong"
-                        android:textSize="16dp" />
+                        android:padding="2dp"
+                        android:text="@string/clear_play_list"
+                        android:textSize="10dp" />
                     <ImageView
-                        android:id="@+id/music_list_add"
+                        android:id="@+id/clear_list_icon"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        app:srcCompat="@drawable/add" />
+                        app:srcCompat="@drawable/trash_can" />
+
 
                 </LinearLayout>
 
