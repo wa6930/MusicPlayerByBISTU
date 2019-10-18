@@ -91,10 +91,10 @@ public class SearchAllSongAdapter extends RecyclerView.Adapter<SearchAllSongAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        songName.setText(nameList.get(position).getMusicName());
-        songId = nameList.get(position).getMusicId();
-        songImage.setImageURI(Uri.parse(nameList.get(position).getImagUri()));
-        songArtise.setText(nameList.get(position).getArtiseName());
+        holder.songName.setText(nameList.get(position).getMusicName());
+        holder.songId = nameList.get(position).getMusicId();
+        holder.songImage.setImageURI(Uri.parse(nameList.get(position).getImagUri()));
+        holder.songArtise.setText(nameList.get(position).getArtiseName());
 
     }
 

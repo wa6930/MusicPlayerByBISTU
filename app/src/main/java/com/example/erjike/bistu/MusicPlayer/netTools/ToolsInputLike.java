@@ -289,10 +289,13 @@ public class ToolsInputLike {
 
                     GetMp3Url translate = gson.fromJson(response.body().string(), GetMp3Url.class);
                     GetMp3Url.DataBean dataBean=translate.getData().get(0);
+
                     SharedPreferences sp=context.getSharedPreferences("musicUrl",context.MODE_PRIVATE);
+
                     SharedPreferences.Editor ed=sp.edit();
                     ed.clear();
                     ed.putString("url",dataBean.getUrl());
+                    //Log.i(TAG, "onResponse: url:"+dataBean.getUrl());
                     ed.commit();
 
                 } catch (Exception e) {
@@ -300,8 +303,10 @@ public class ToolsInputLike {
                 }
             }
         };
+
         HttpUtil.sendOkHttpRequest(urlString, callback);
         SharedPreferences sp=context.getSharedPreferences("musicUrl",context.MODE_PRIVATE);
+        Log.i(TAG, "getMp3Url: url:"+sp.getString("url",""));
         return sp.getString("url","");
 
     }

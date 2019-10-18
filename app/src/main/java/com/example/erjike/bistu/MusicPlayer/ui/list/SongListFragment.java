@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
@@ -31,8 +32,10 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.erjike.bistu.MusicPlayer.MainActivity;
 import com.example.erjike.bistu.MusicPlayer.R;
 import com.example.erjike.bistu.MusicPlayer.SearchSongActivity;
+import com.example.erjike.bistu.MusicPlayer.Service.MusicService;
 import com.example.erjike.bistu.MusicPlayer.adapter.PlayingListAdapter;
 import com.example.erjike.bistu.MusicPlayer.filesTool.PlayListSharedPerferences;
 import com.example.erjike.bistu.MusicPlayer.model.SearchMusicModel;
@@ -41,46 +44,36 @@ import com.example.erjike.bistu.MusicPlayer.netTools.ToolsInputLike;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class SongListFragment extends Fragment {
 
-    final ServiceConnection myConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            myBinder = (MyMusicService.MyBinder) iBinder;//绑定成功
-            if(myBinder==null){
-                Log.i(TAG, "onServiceConnected: 连接后， myBinder便是空");
-            }
-            else {
-                Log.i(TAG, "onServiceConnected: 异步信息没有加载而已myBinder+"+myBinder.toString());
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.e("MainActivity", "onServiceDisconnected: 绑定失败。");
-            throw new NullPointerException();//服务绑定失败后，自动报错退出
-        }
-    };
     private SongListViewModel songListViewModel;
     private List<SearchMusicModel> lSongList;//上一首歌所在列表，最后一首播放了的在链表尾部
     private List<SearchMusicModel> rSongList;//当前歌曲和下一首所在列表，当前播放永远是链表第一
     private PlayingListAdapter adapter;
     private ImageView searchSongs;
     private ImageView clearList;
+    private ImageView playType;
     private RecyclerView recyclerView;
     private RelativeLayout musicPlayLinearLayout;
 
-    private MyMusicService.MyBinder myBinder;//播放器binder,用于控制MediaPlayer
+    private MusicService.MyBinder myBinder;//播放器binder,用于控制MediaPlayer
+
     //播放界面的对应注册
 
     private ImageView musicPlay;
     private ImageView musicNext;
+    private ImageView musicLast;
     private SeekBar musicSeekBar;
     private TextView musicName;
     private TextView musicArtise;
+    /*
+     type=0,顺序播放 Type=1,随机播放
+     */
+    int type = 0;
     //注册handler用于多线程更新UI
     private static final int UPDATE_PROGRESS = 0;//常量
     private Handler handler = new Handler() {
@@ -91,7 +84,7 @@ public class SongListFragment extends Fragment {
                     //实现每隔500毫秒更新一次界面
                     int positon = myBinder.getCurrenPostion();//毫秒为单位的时间
                     musicSeekBar.setProgress(positon);
-                    handler.sendEmptyMessageAtTime(UPDATE_PROGRESS, 500);
+                    handler.sendEmptyMessageDelayed(UPDATE_PROGRESS, 500);
                     //实现更新进度条的操作
                     //步骤1.更新musicSeekBar
                     break;
@@ -115,7 +108,8 @@ public class SongListFragment extends Fragment {
                 inflater.getContext().startActivity(intent);
             }
         });
-        clearList=(ImageView)root.findViewById(R.id.clear_list_icon);
+        clearList = (ImageView) root.findViewById(R.id.clear_list_icon);
+        playType = (ImageView) root.findViewById(R.id.music_list_button_of_change);
 
         recyclerView = (RecyclerView) root.findViewById(R.id.music_list_recyclerView);
         musicPlayLinearLayout = (RelativeLayout) root.findViewById(R.id.music_player_relativeLayout);
@@ -123,6 +117,7 @@ public class SongListFragment extends Fragment {
         musicPlay = (ImageView) root.findViewById(R.id.playing_music_control);
         musicSeekBar = (SeekBar) root.findViewById(R.id.playing_music_SeekBar);
         musicNext = (ImageView) root.findViewById(R.id.playing_music_next);
+        musicLast = (ImageView) root.findViewById(R.id.playing_music_last);
         musicName = (TextView) root.findViewById(R.id.playing_music_name);
         musicArtise = (TextView) root.findViewById(R.id.playing_music_maker);
 
@@ -145,7 +140,7 @@ public class SongListFragment extends Fragment {
         rSongList = new ArrayList<>();
         lSongList = PlayListSharedPerferences.loadLSharedPerference(getContext());//从文件中读取两个链表
         rSongList = PlayListSharedPerferences.loadRSharedPerference(getContext());
-        Log.i(TAG, "init: lSongList.size:"+lSongList.size()+" rSongList.size:"+rSongList.size());
+        Log.i(TAG, "init: lSongList.size:" + lSongList.size() + " rSongList.size:" + rSongList.size());
         adapter = new PlayingListAdapter();
         adapter.setlList(lSongList);
         adapter.setrList(rSongList);
@@ -153,14 +148,17 @@ public class SongListFragment extends Fragment {
         RecyclerView.LayoutManager manager = new GridLayoutManager(getContext(), 1);
         recyclerView.setLayoutManager(manager);
         adapter.notifyDataSetChanged();
+
         clearList.setOnClickListener(new View.OnClickListener() {
+            //清空列表
             @Override
             public void onClick(View view) {
-                PlayListSharedPerferences.writeRSharedPerference(new ArrayList<SearchMusicModel>(),getContext());
+                PlayListSharedPerferences.writeRSharedPerference(new ArrayList<SearchMusicModel>(), getContext());
                 lSongList.clear();
-                PlayListSharedPerferences.writeLSharedPerference(new ArrayList<SearchMusicModel>(),getContext());
+                PlayListSharedPerferences.writeLSharedPerference(new ArrayList<SearchMusicModel>(), getContext());
                 rSongList.clear();
                 adapter.notifyDataSetChanged();
+                musicPlayLinearLayout.setVisibility(View.INVISIBLE);
             }
         });
         if (adapter.getItemCount() != 0) {
@@ -168,14 +166,44 @@ public class SongListFragment extends Fragment {
             musicPlayLinearLayout.setVisibility(View.VISIBLE);
             SearchMusicModel music = rSongList.get(0);
             //读取该id，并调用Service方法播放
-            Intent intentService = new Intent(getActivity(), MyMusicService.class);
-            String url= ToolsInputLike.getMp3Url(music.getMusicId(), "10.3.149.67", true, getContext());
-            Log.i(TAG, "init: url+"+url);
+            Intent intentService = new Intent(getActivity(), MusicService.class);
+            Log.i(TAG, "init: music.getMusicId():" + music.getMusicId());
+            final String url = ToolsInputLike.getMp3Url(music.getMusicId(), MainActivity.HOST_IP, true, getContext());
+            Log.i(TAG, "init: url+" + url);
+            intentService.putExtra("MP3url", url);
             //intentService.putExtra("MP3url",url);
             getActivity().startService(intentService);
+            final ServiceConnection myConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                    myBinder = (MusicService.MyBinder) iBinder;//绑定成功
+                    myBinder.setSeekBar(musicSeekBar);//绑定进度条
+                    myBinder.setContext(getContext());
+                    //加载成功
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            Message message = new Message();
+                            message.what = UPDATE_PROGRESS;
+                            handler.sendMessage(message);
+                        }
+                    }.run();//多线程更新界面
+
+                    adapter.setPlayImage(musicPlay);
+                    adapter.setShowMusicName(musicName);
+                    adapter.setMyBinder(myBinder);
+
+
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName componentName) {
+                    Log.e("MainActivity", "onServiceDisconnected: 绑定失败。");
+                    throw new NullPointerException();//服务绑定失败后，自动报错退出
+                }
+            };
             getActivity().bindService(intentService, myConnection, getActivity().BIND_AUTO_CREATE);
             //绑定后设置对应内容
-
             musicName.setText(music.getMusicName());
             musicArtise.setText(music.getArtiseName());
             //musicSeekBar.setMax(myBinder.getDuration());//设置seekBar最大值
@@ -189,26 +217,85 @@ public class SongListFragment extends Fragment {
                 public void onClick(View view) {
                     if (myBinder != null) {
                         //实现播放暂停操作
-                        Log.i(TAG, "onClick: myBinder ok！");
                         if (myBinder.isPlaying()) {
                             myBinder.pause();//暂停
+                            Log.i(TAG, "onClick: Pause!");
+                            musicPlay.setImageResource(R.drawable.play);
                         } else {
                             myBinder.play();//播放
+                            Log.i(TAG, "onClick: PLaying!,url=" + url);
+
+                            musicPlay.setImageResource(R.drawable.pause);
                         }
-                    }else{
+                    } else {
                         Log.i(TAG, "onClick: myBinder为空！");
                     }
 
                 }
             });
+            if (myBinder != null) {
+//                new Thread() {
+//                    @Override
+//                    public void run() {
+//                        Message message = new Message();
+//                        message.what = UPDATE_PROGRESS;
+//                        handler.sendMessage(message);
+//                    }
+//                }.run();
+            }
+
             musicNext.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
-                    //TODO 实现下一首操作
+                    ListToNext();
                 }
             });
 
+            musicLast.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //TODO 实现上一首
+                    if (type == 0) {//顺序播放调用功能
+
+                    } else {//随机播放调用
+
+                    }
+                }
+            });
+
+            playType.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //切换播放模式
+                    if (type == 0) {
+                        playType.setImageResource(R.drawable.random);
+                        Toast.makeText(getContext(), "进入随机播放，自动回到播放列表首", Toast.LENGTH_SHORT).show();
+                        lSongList.addAll(rSongList);
+                        rSongList.clear();
+                        rSongList.addAll(lSongList);
+                        lSongList.clear();
+                        String url=ToolsInputLike.getMp3Url(rSongList.get(0).getMusicId(),MainActivity.HOST_IP,true,getContext());
+                        if(url.equals("")||url==null){
+                            //重调该方法
+                            Toast.makeText(getContext(),"您想要播放的音乐无版权，",Toast.LENGTH_SHORT).show();
+                        }else {
+                            myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
+                            musicName.setText(rSongList.get(0).getMusicName());
+
+                        }
+                        adapter.notifyDataSetChanged();
+
+
+
+                        type = 1;
+                    } else {
+                        playType.setImageResource(R.drawable.repeat);
+                        Toast.makeText(getContext(), "顺序播放", Toast.LENGTH_SHORT).show();
+                        type = 0;
+                    }
+
+                }
+            });
 
         } else {
             //当播放列表为空时，播放器隐藏
@@ -216,6 +303,28 @@ public class SongListFragment extends Fragment {
         }
 
 
+    }
+
+    @Override
+    public void onStart() {
+
+        //每次重新进入都更新组件
+        lSongList.clear();
+        rSongList.clear();
+        lSongList.addAll(PlayListSharedPerferences.loadLSharedPerference(getContext()));//从文件中读取两个链表
+        rSongList.addAll(PlayListSharedPerferences.loadRSharedPerference(getContext()));
+        if (musicPlayLinearLayout.getVisibility() == View.INVISIBLE && (lSongList.size() != 0 || rSongList.size() != 0)) {
+            musicPlayLinearLayout.setVisibility(View.VISIBLE);
+            if (myBinder.isPlaying()) {
+
+            } else {
+                myBinder.pause();
+                myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
+            }
+
+        }
+        adapter.notifyDataSetChanged();
+        super.onStart();
     }
 
     @Override
@@ -237,128 +346,156 @@ public class SongListFragment extends Fragment {
         super.onStop();
     }
 
-    class MyMusicService extends Service {
-        private String url;
-        private String nextUrl;
-        private String lastUrl;
-        private MediaPlayer mediaPlayer;
-
-
-        @Override
-        public void onCreate() {
-            super.onCreate();
-            Log.d(TAG, "onCreate");
-            mediaPlayer = new MediaPlayer();//初始化mediaPlayer
-
-        }
-
-
-        @Override
-        public IBinder onBind(Intent intent) {
-            url = intent.getStringExtra("MP3url");//通过intent获取关键url
-            //nextUrl = intent.getStringExtra("NextMP3url");//下一首歌的url地址
-            try {
-                mediaPlayer.reset();
-                mediaPlayer.setDataSource(url);
-                mediaPlayer.setLooping(false);//禁止单曲循环
-                mediaPlayer.prepareAsync();//网络音乐调用异步方法
-                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mediaPlayer) {//当加载完成后
-                        //mediaPlayer.start();
-                        musicSeekBar.setMax(myBinder.getDuration());//加载完毕后设置musicSeekBar长度
-                    }
-                });
-                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-                        mediaPlayer.stop();//停止播放
-
-                        //TODO audio播放完成后自动触发：需要完成，如果歌单下一首存在，读取歌单下一首歌，创建新的MediaPlayer的操作
-
-                    }
-
-                });
-
-
-            } catch (Exception e) {
-                Log.e(TAG, "onBind: Exception message:" + e.getMessage());
-            }
-
-            return new MyMusicService.MyBinder();//返回继承binder的自建类
-        }
-
-        /*
-            关闭线程时调用
-         */
-        @Override
-        public boolean onUnbind(Intent intent) {
-            Log.d(TAG, "onUnbind");
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-            return super.onUnbind(intent);
-        }
-
-        public class MyBinder extends Binder {
-
-            String TAG = "ErJike's MusicService";
-
-            /*
-                true:播放中，false:暂停或者停止
-             */
-            public boolean isPlaying() {
-                if (mediaPlayer.isPlaying()) return true;
-                else return false;
-            }
-
-
-            //实现具体的播放功能
-            //播放
-            public void play() {
-                mediaPlayer.start();
-
-
-            }
-
-            //继续播放
-            public void goPray() {
-                mediaPlayer.start();
-
-            }
-
-            public void goNextSong() {
-
-            }
-
-            //暂停
-            public void pause() {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
+    public void ListToNext(){
+        if (type == 0) {//顺序播放调用功能
+            if (rSongList.size() > 1) {//当rList有下一首的时候
+                lSongList.add(rSongList.get(0));
+                rSongList.remove(0);
+                //将要播放的继续赋值为0
+                String url=ToolsInputLike.getMp3Url(rSongList.get(0).getMusicId(),MainActivity.HOST_IP,true,getContext());
+                if(url.equals("")||url==null){
+                    //重调该方法
+                    Toast.makeText(getContext(),"您想要播放的音乐无版权，自动切换到下一首",Toast.LENGTH_SHORT).show();
+                    ListToNext();//重新调用该方法
                 }
-
+                myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
+                musicName.setText(rSongList.get(0).getMusicName());
+                Toast.makeText(getContext(),"下一首",Toast.LENGTH_SHORT).show();
+                adapter.notifyDataSetChanged();
+            }
+            else {
+                lSongList.add(rSongList.get(0));
+                rSongList.clear();
+                rSongList.addAll(lSongList);
+                lSongList.clear();
+                //移动到第一首歌，上一首的链表就会变为空
+                String url=ToolsInputLike.getMp3Url(rSongList.get(0).getMusicId(),MainActivity.HOST_IP,true,getContext());
+                if(url.equals("")||url==null){
+                    //重调该方法
+                    Toast.makeText(getContext(),"您想要播放的音乐无版权，自动切换到下一首",Toast.LENGTH_SHORT).show();
+                    ListToNext();//重新调用该方法
+                }
+                myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
+                musicName.setText(rSongList.get(0).getMusicName());
+                Toast.makeText(getContext(),"下一首",Toast.LENGTH_SHORT).show();
+                adapter.notifyDataSetChanged();
             }
 
-            //跳转到指定位置
-            public void seekToPosition(int position) {
-                mediaPlayer.seekTo(position);
-            }
+        } else {//随机播放调用
+            if (rSongList.size() > 1){//有下一首歌
+                Random random=new Random();
+                int position=random.nextInt(rSongList.size());
 
 
-            /*
-                返回毫秒为单位的播放时间
-             */
-            public int getCurrenPostion() {
-                return mediaPlayer.getCurrentPosition();
+                SearchMusicModel music=rSongList.remove(position);//首先获得该位置音乐
+                lSongList.add(rSongList.get(0));
+                SearchMusicModel lastmusic=rSongList.remove(0);//如果不是第一个，那么删除第一个
+                if(lSongList.size()==0){
+                    lSongList.remove(lSongList.size()-1);//加回右链表
+                    rSongList.add(lastmusic);
+                }
+                rSongList.add(0,music);
+
+
+                String url=ToolsInputLike.getMp3Url(rSongList.get(0).getMusicId(),MainActivity.HOST_IP,true,getContext());
+                if(url.equals("")||url==null){
+                    //重调该方法
+                    Toast.makeText(getContext(),"您想要播放的音乐无版权，自动切换到下一首",Toast.LENGTH_SHORT).show();
+                    ListToNext();//重新调用该方法
+                }
+                myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
+                musicName.setText(rSongList.get(0).getMusicName());
+                Toast.makeText(getContext(),"下一首",Toast.LENGTH_SHORT).show();
+                adapter.notifyDataSetChanged();
+            }
+            else{
+                lSongList.addAll(rSongList);
+                rSongList.clear();;
+                rSongList.addAll(lSongList);
+                lSongList.clear();
+                ListToNext();//重新调用
             }
 
-            //返回歌曲的长度，单位为毫秒
-            public int getDuration() {
-                return mediaPlayer.getDuration();
-            }
 
 
         }
+
     }
+    public void ListToLast(){
+        if (type == 0) {//顺序播放调用功能
+            if (rSongList.size() > 1) {//当rList有下一首的时候
+                lSongList.add(rSongList.get(0));
+                rSongList.remove(0);
+                //将要播放的继续赋值为0
+                String url=ToolsInputLike.getMp3Url(rSongList.get(0).getMusicId(),MainActivity.HOST_IP,true,getContext());
+                if(url.equals("")||url==null){
+                    //重调该方法
+                    Toast.makeText(getContext(),"您想要播放的音乐无版权，自动切换到下一首",Toast.LENGTH_SHORT).show();
+                    ListToNext();//重新调用该方法
+                }
+                myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
+                musicName.setText(rSongList.get(0).getMusicName());
+                Toast.makeText(getContext(),"下一首",Toast.LENGTH_SHORT).show();
+                adapter.notifyDataSetChanged();
+            }
+            else {
+                lSongList.add(rSongList.get(0));
+                rSongList.clear();
+                rSongList.addAll(lSongList);
+                lSongList.clear();
+                //移动到第一首歌，上一首的链表就会变为空
+                String url=ToolsInputLike.getMp3Url(rSongList.get(0).getMusicId(),MainActivity.HOST_IP,true,getContext());
+                if(url.equals("")||url==null){
+                    //重调该方法
+                    Toast.makeText(getContext(),"您想要播放的音乐无版权，自动切换到下一首",Toast.LENGTH_SHORT).show();
+                    ListToNext();//重新调用该方法
+                }
+                myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
+                musicName.setText(rSongList.get(0).getMusicName());
+                Toast.makeText(getContext(),"下一首",Toast.LENGTH_SHORT).show();
+                adapter.notifyDataSetChanged();
+            }
+
+        } else {//随机播放调用
+            if (rSongList.size() > 1){//有下一首歌
+                Random random=new Random();
+                int position=random.nextInt(rSongList.size());
+
+
+                SearchMusicModel music=rSongList.remove(position);//首先获得该位置音乐
+                lSongList.add(rSongList.get(0));
+                SearchMusicModel lastmusic=rSongList.remove(0);//如果不是第一个，那么删除第一个
+                if(lSongList.size()==0){
+                    lSongList.remove(lSongList.size()-1);//加回右链表
+                    rSongList.add(lastmusic);
+                }
+                rSongList.add(0,music);
+
+
+                String url=ToolsInputLike.getMp3Url(rSongList.get(0).getMusicId(),MainActivity.HOST_IP,true,getContext());
+                if(url.equals("")||url==null){
+                    //重调该方法
+                    Toast.makeText(getContext(),"您想要播放的音乐无版权，自动切换到下一首",Toast.LENGTH_SHORT).show();
+                    ListToNext();//重新调用该方法
+                }
+                myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
+                musicName.setText(rSongList.get(0).getMusicName());
+                Toast.makeText(getContext(),"下一首",Toast.LENGTH_SHORT).show();
+                adapter.notifyDataSetChanged();
+            }
+            else{
+                lSongList.addAll(rSongList);
+                rSongList.clear();;
+                rSongList.addAll(lSongList);
+                lSongList.clear();
+                ListToNext();//重新调用
+            }
+
+
+
+        }
+
+    }
+
 
 }

@@ -13,6 +13,7 @@ import androidx.navigation.ui.NavigationUI;
 
 
 public class MainActivity extends AppCompatActivity {
+    public static final String HOST_IP = "10.3.149.67";
 
 
 
@@ -37,5 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+    }
 }

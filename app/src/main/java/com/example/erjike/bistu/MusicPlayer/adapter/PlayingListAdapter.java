@@ -2,6 +2,7 @@ package com.example.erjike.bistu.MusicPlayer.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +14,15 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.erjike.bistu.MusicPlayer.MainActivity;
 import com.example.erjike.bistu.MusicPlayer.R;
+import com.example.erjike.bistu.MusicPlayer.Service.MusicService;
 import com.example.erjike.bistu.MusicPlayer.model.SearchMusicModel;
+import com.example.erjike.bistu.MusicPlayer.netTools.ToolsInputLike;
 
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 public class PlayingListAdapter extends RecyclerView.Adapter<PlayingListAdapter.ViewHolder> {
     Context mContext;
@@ -27,6 +33,21 @@ public class PlayingListAdapter extends RecyclerView.Adapter<PlayingListAdapter.
     TextView songName;
     ImageView toPlayActivity;
     LinearLayout linearLayout;
+    MusicService.MyBinder myBinder;
+    TextView showMusicName;
+    ImageView playImage;
+
+    public void setShowMusicName(TextView showMusicName) {
+        this.showMusicName = showMusicName;
+    }
+
+    public void setPlayImage(ImageView playImage) {
+        this.playImage = playImage;
+    }
+
+    public void setMyBinder(MusicService.MyBinder myBinder) {
+        this.myBinder = myBinder;
+    }
 
     public void setrList(List<SearchMusicModel> rList) {
         this.rList = rList;
@@ -62,24 +83,46 @@ public class PlayingListAdapter extends RecyclerView.Adapter<PlayingListAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        if(position+1!=lList.size()){
-            linearLayout.setBackgroundColor(Color.WHITE);
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+        //if(position!=lList.size()){
+            linearLayout.setBackgroundColor(Color.WHITE);//暂时不考虑播放高亮
             //除了正在播放的音乐，其他均为白色
-        }
+        //}
         if(position+1>lList.size()){
             int rPosition=position-lList.size();
-            songId=rList.get(rPosition).getMusicId();
-            songName.setText(rList.get(rPosition).getMusicName());
-            songId=rList.get(rPosition).getMusicId();
+            holder.musicId=rList.get(rPosition).getMusicId();
+            holder.songName.setText(rList.get(rPosition).getMusicName());
+            //holder.musicMaker=rList.get(rPosition).getArtiseName();
+            //holder.musicId=rList.get(rPosition).getMusicId();
         }
         else {
-            songId=lList.get(position).getMusicId();
-            songName.setText(lList.get(position).getMusicName());
-            songId=lList.get(position).getMusicId();
-
-
+            holder.musicId=lList.get(position).getMusicId();
+            holder.songName.setText(lList.get(position).getMusicName());
+            //holder.musicId=lList.get(position).getMusicId();
         }
+        linearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(myBinder!=null){
+                   //TODO 调用赋值与播放操作
+                    myBinder.pause();
+                    myBinder.setNewMediaPlayer(holder.musicId);
+                    String url=ToolsInputLike.getMp3Url(holder.musicId, MainActivity.HOST_IP,true,mContext);
+                    if(url.equals("")||url==null){
+                        Log.i(TAG, "onClick: 不进行界面更改");
+                    }else {
+                        showMusicName.setText(holder.songName.getText().toString());
+                        playImage.setImageResource(R.drawable.pause);
+                    }
+
+
+                }
+                else{
+                    Log.e(TAG, "onClick: 在setOnClickListener中binder为空");
+                }
+
+            }
+        });
 
     }
 
@@ -89,10 +132,12 @@ public class PlayingListAdapter extends RecyclerView.Adapter<PlayingListAdapter.
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        String musicMaker;
         String musicId;
         TextView songName;
         ImageView toPlayActivity;
         LinearLayout linearLayout;
+        MusicService.MyBinder myBinder;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             songName=(TextView)itemView.findViewById(R.id.list_name_text);

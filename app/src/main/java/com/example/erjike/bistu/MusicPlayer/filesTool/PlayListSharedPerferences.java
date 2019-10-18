@@ -92,5 +92,16 @@ public class PlayListSharedPerferences {
 
         //对当前文件进行操作，如果可以再顺便重新绑定一下Service，从而直接播放添加进的歌曲
     }
+    public static List<SearchMusicModel> RDeleteMusic(SearchMusicModel music,Context context){
+
+        //TODO 当想要删除左链表时
+        return null;
+    }
+
+    public static List<SearchMusicModel> LDeleteMusic(SearchMusicModel music,Context context){
+        //TODO 当想要删除右链表时
+        return null;
+
+    }
 
 }

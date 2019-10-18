@@ -53,7 +53,7 @@ public class SearchSongActivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
                 if(inputEdit.getText().toString().length()>=1){
                     listName.clear();
-                    listName.addAll(ToolsInputLike.getInputLike(inputEdit.getText().toString(),"10.3.149.67",true,SearchSongActivity.this));
+                    listName.addAll(ToolsInputLike.getInputLike(inputEdit.getText().toString(),MainActivity.HOST_IP,true,SearchSongActivity.this));
                     //Log.i("LiksList.size", "afterTextChanged: "+listName.size());//数据正常
                     adapter.setNameList(listName);
                     adapter.notifyDataSetChanged();

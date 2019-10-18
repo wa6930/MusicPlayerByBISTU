@@ -40,6 +40,7 @@
                 <TextView
                     android:id="@+id/playing_music_name"
                     android:layout_width="wrap_content"
+
                     android:layout_height="20dp"
                     android:text="歌名歌名歌名歌名名歌名歌名名歌名歌名名歌名歌名歌名歌名名歌名歌名"
                     android:textSize="16dp"
@@ -49,11 +50,18 @@
                 <TextView
                     android:id="@+id/playing_music_maker"
                     android:text="作者作者作者作者"
+                    android:visibility="invisible"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                   />
 
             </LinearLayout>
+            <ImageView
+                android:id="@+id/playing_music_last"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/previous"
+                android:layout_weight="1"/>
             <ImageView
                 android:id="@+id/playing_music_control"
                 android:layout_width="0dp"
@@ -64,7 +72,7 @@
                 android:id="@+id/playing_music_next"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paragraph_align_right"
+                app:srcCompat="@drawable/next"
                 android:layout_weight="1"/>
 
 

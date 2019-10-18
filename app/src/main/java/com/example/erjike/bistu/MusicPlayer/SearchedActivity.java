@@ -48,7 +48,7 @@ public class SearchedActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.searched_list_recyclerview);
         Intent intent = getIntent();
         String text= intent.getStringExtra("name");
-        list.addAll(ToolsInputLike.getSearchSongs(text, "10.3.149.67", true, SearchedActivity.this));
+        list.addAll(ToolsInputLike.getSearchSongs(text, MainActivity.HOST_IP, true, SearchedActivity.this));
 
         recyclerView.setLayoutManager(new GridLayoutManager(SearchedActivity.this, 1));
         adapter = new SearchAllSongAdapter(SearchedActivity.this, list);
