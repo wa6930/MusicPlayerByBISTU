@@ -1,12 +1,14 @@
 package com.example.erjike.bistu.MusicPlayer.model;
 
-public class SearchMusicModel {
+import java.io.Serializable;
+
+public class SearchMusicModel implements Serializable {//实现Serializable从而实现intent传值
     String musicId;
     String musicName;
     String artiseName;
     String imagUri;
 
-    public SearchMusicModel() {
+    public SearchMusicModel()  {
     }
 
     public SearchMusicModel(String musicId, String musicName, String artiseName, String imagUri) {

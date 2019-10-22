@@ -141,9 +141,9 @@ public class SearchAllSongListDBHelper extends SQLiteOpenHelper {
                 new String[]{"%%"}, null, null, null);//在id存在的表中寻找已经是否存在该歌曲
         while (search_cursor.moveToNext()) {
             String songId = search_cursor.getString(search_cursor.getColumnIndex(TABLE_LIST_1));
-            Log.i(TAG, "getSearchSongList: songId"+songId);
+            //Log.i(TAG, "getSearchSongList: songId"+songId);
             String songName = search_cursor.getString(search_cursor.getColumnIndex(TABLE_LIST_2));
-            Log.i(TAG, "getSearchSongList: songName"+songName);
+            //Log.i(TAG, "getSearchSongList: songName"+songName);
             String songImagUri = search_cursor.getString(search_cursor.getColumnIndex(TABLE_LIST_3));
             String songMakerName = search_cursor.getString(search_cursor.getColumnIndex(TABLE_LIST_4));
             SearchMusicModel music = new SearchMusicModel(songId, songName, songMakerName, songImagUri);

@@ -18,6 +18,7 @@ import com.example.erjike.bistu.MusicPlayer.filesTool.PlayListSharedPerferences;
 import com.example.erjike.bistu.MusicPlayer.model.SearchMusicModel;
 import com.example.erjike.bistu.MusicPlayer.netTools.ToolsInputLike;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static android.media.MediaPlayer.*;
@@ -115,7 +116,7 @@ public class MusicService extends Service {
         return super.onUnbind(intent);
     }
 
-    public class MyBinder extends Binder {
+    public class MyBinder extends Binder implements Serializable {//实现serializable从而可以通过intent传值
         private SeekBar seekBar;
         MediaPlayer mediaPlayer;
         Context context;

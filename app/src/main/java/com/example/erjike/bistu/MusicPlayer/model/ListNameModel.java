@@ -6,6 +6,11 @@ public class ListNameModel {
     private String title;
     private List<SearchMusicModel> list;//二级菜单内容，数据项
 
+    public ListNameModel(String title, List<SearchMusicModel> list) {
+        this.title = title;
+        this.list = list;
+    }
+
     public String getTitle() {
         return title;
     }

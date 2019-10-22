@@ -122,7 +122,7 @@ public class SongListDBHelper extends SQLiteOpenHelper {
         }
         search_cursor.close();//关闭查询
 
-        //TODO 用于添加单词到本SQlite数据库中
+        // 用于添加歌曲到本SQlite数据库中
 
     }
 

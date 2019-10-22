@@ -12,12 +12,13 @@ import android.widget.TextView;
 import com.example.erjike.bistu.MusicPlayer.R;
 import com.example.erjike.bistu.MusicPlayer.model.ListNameModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ShowSongListAdapter extends BaseExpandableListAdapter {
     private Context context;
     private LayoutInflater mInflater;
-    private List<ListNameModel> listname;
+    private List<ListNameModel> listname=new ArrayList<>();
 
     public ShowSongListAdapter(Context context, LayoutInflater mInflater, List<ListNameModel> listname) {
         this.context = context;
@@ -100,12 +101,12 @@ public class ShowSongListAdapter extends BaseExpandableListAdapter {
             holderViewFather=(HolderViewFather)view.getTag();
         }
         //判断箭头向右还是向下
-        if(b){
-            holderViewFather.listIconType.setImageResource(R.drawable.down);
-        }else{
-            holderViewFather.listIconType.setImageResource(R.drawable.right);
-
-        }
+//        if(b){
+//            holderViewFather.listIconType.setImageResource(R.drawable.down);
+//        }else{
+//            holderViewFather.listIconType.setImageResource(R.drawable.right);
+//
+//        }
 
         holderViewFather.title.setText(listname.get(i).getTitle());
         return view;
@@ -122,7 +123,7 @@ public class ShowSongListAdapter extends BaseExpandableListAdapter {
           view=mInflater.inflate(R.layout.music_list_item,viewGroup,false);
           childrenView.musicName=(TextView)view.findViewById(R.id.list_music_name);
           childrenView.artiseName=(TextView)view.findViewById(R.id.list_music_maker);
-          childrenView.musicIcon=(ImageView)view.findViewById(R.id.music_icon);
+          childrenView.musicIcon=(ImageView)view.findViewById(R.id.music_icon);//无空指针情况
       }
       else {
           childrenView=(HolderView)view.getTag();

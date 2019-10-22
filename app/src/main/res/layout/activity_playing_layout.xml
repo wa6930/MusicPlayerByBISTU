@@ -8,14 +8,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+
+        <RelativeLayout
+
+            android:id="@+id/playing_music_relativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:paddingLeft="100dp">
+            <!--中间通过函数添加Matrix-->
+
+        </RelativeLayout>
         <TextView
             android:layout_width="match_parent"
+            android:background="@color/colorLightBlue"
             android:layout_height="50dp"/>
-        <ImageView
-            android:id="@+id/playing_music_imageView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/music_icon" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
