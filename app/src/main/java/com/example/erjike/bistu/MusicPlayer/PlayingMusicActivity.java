@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import me.wcy.lrcview.LrcView;
+
 public class PlayingMusicActivity extends AppCompatActivity {
     public static final String TAG = "PlayingMusicActivity";
     int type = 0;//获取上一个界面传来的播放类型，0顺序，1随机
@@ -43,15 +45,13 @@ public class PlayingMusicActivity extends AppCompatActivity {
                     try{
                         int positon = myBinder.getCurrenPostion();//毫秒为单位的时间
                         seekBar.setProgress(positon);
+                        lyrics.updateTime(positon);
                         handler.sendEmptyMessageDelayed(UPDATE_PROGRESS, 500);
                     }catch (Exception e){
                         Log.e(TAG, "handleMessage: e:"+e.getMessage());
 
                     }
                     //实现每隔500毫秒更新一次界面
-
-                    //实现更新进度条的操作
-                    //步骤1.更新musicSeekBar
                     break;
                 default:
             }
@@ -84,7 +84,7 @@ public class PlayingMusicActivity extends AppCompatActivity {
 
     //private MusicService.MyBinder musicControl;//控制音乐
     //歌词
-    RecyclerView lyrics;
+    LrcView lyrics;//第三方库
     String lyricsString="";
     //歌词滚动使用了第三方库实现@https://github.com/wangchenyan/lrcview
 
@@ -134,7 +134,8 @@ public class PlayingMusicActivity extends AppCompatActivity {
 
         nextMusic = (ImageView) findViewById(R.id.playing_music_after_music);
 
-        lyrics = (RecyclerView) findViewById(R.id.playing_music_lyrics);
+        lyrics = (LrcView) findViewById(R.id.playing_music_lyrics);
+        lyrics.setDraggable(false,null);//设置歌词不可拖动
         seekBar = (SeekBar) findViewById(R.id.playing_music_appCompateSeekBar);
         UpUI();
 
@@ -155,6 +156,9 @@ public class PlayingMusicActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 myBinder.seekToPosition(seekBar.getProgress());
+                if(lyrics.hasLrc()){
+                    lyrics.updateTime(seekBar.getProgress());//拖动进度条使歌词时间戳改变
+                }
                 Log.i(TAG, "onStopTrackingTouch: i:" + seekBar.getProgress());
                 //更改进度条后播放进度也会随之改变
 
@@ -445,11 +449,17 @@ public class PlayingMusicActivity extends AppCompatActivity {
                 Log.i(TAG, "UpUI: getId不为null"+myBinder.getId());
                 lyricsString=ToolsInputLike.getLyrics(myBinder.getId(),MainActivity.HOST_IP,true,PlayingMusicActivity.this);
                 Log.i(TAG, "UpUI: lyrics:"+lyricsString);
+                lyrics.loadLrc(lyricsString);
+
             }
             else{
                 Log.i(TAG, "UpUI: getId为空"+rSongList.get(0).getMusicId());
                 lyricsString=ToolsInputLike.getLyrics(rSongList.get(0).getMusicId(),MainActivity.HOST_IP,true,PlayingMusicActivity.this);
                 Log.i(TAG, "UpUI: lyrics:"+lyricsString);
+                //以下内容均由第三方module实现,@https://github.com/wangchenyan/lrcview
+                lyrics.loadLrc(lyricsString);
+
+
 
             }
 
