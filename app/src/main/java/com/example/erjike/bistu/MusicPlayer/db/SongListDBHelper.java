@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import com.example.erjike.bistu.MusicPlayer.model.SearchMusicModel;
 
 /*
-用于显示当前歌单的本地化
+用于显示当前歌单歌曲
  */
 public class SongListDBHelper extends SQLiteOpenHelper {
 
@@ -121,9 +121,12 @@ public class SongListDBHelper extends SQLiteOpenHelper {
 
         }
         search_cursor.close();//关闭查询
-
         // 用于添加歌曲到本SQlite数据库中
+    }
 
+    public static void deleteMusic(SQLiteDatabase db,SearchMusicModel music,Context mContext){
+        String musicId=music.getMusicId();
+        //不想做了
     }
 
 }

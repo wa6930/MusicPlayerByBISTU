@@ -10,7 +10,7 @@ public class LikeSongsViewModel extends ViewModel {
 
     public LikeSongsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
+        mText.setValue("喜欢页面，暂时用不到，未使用");
     }
 
     public LiveData<String> getText() {

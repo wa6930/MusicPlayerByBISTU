@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -38,10 +40,16 @@ public class PlayingMusicActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case UPDATE_PROGRESS:
+                    try{
+                        int positon = myBinder.getCurrenPostion();//毫秒为单位的时间
+                        seekBar.setProgress(positon);
+                        handler.sendEmptyMessageDelayed(UPDATE_PROGRESS, 500);
+                    }catch (Exception e){
+                        Log.e(TAG, "handleMessage: e:"+e.getMessage());
+
+                    }
                     //实现每隔500毫秒更新一次界面
-                    int positon = myBinder.getCurrenPostion();//毫秒为单位的时间
-                    seekBar.setProgress(positon);
-                    handler.sendEmptyMessageDelayed(UPDATE_PROGRESS, 500);
+
                     //实现更新进度条的操作
                     //步骤1.更新musicSeekBar
                     break;
@@ -77,6 +85,8 @@ public class PlayingMusicActivity extends AppCompatActivity {
     //private MusicService.MyBinder musicControl;//控制音乐
     //歌词
     RecyclerView lyrics;
+    String lyricsString="";
+    //歌词滚动使用了第三方库实现@https://github.com/wangchenyan/lrcview
 
 
     @Override
@@ -111,7 +121,7 @@ public class PlayingMusicActivity extends AppCompatActivity {
 
         relativeLayout =(RelativeLayout)findViewById(R.id.playing_music_relativeLayout);
         musicName = (TextView) findViewById(R.id.playing_music_name);
-        musicName.setText(rSongList.get(0).getMusicName());//歌名赋值
+        musicName.setText(intent.getStringExtra("name"));//歌名赋值
         back = (ImageView) findViewById(R.id.playing_music_back);
 
         microphone = (ImageView) findViewById(R.id.playing_music_microphone);
@@ -166,6 +176,12 @@ public class PlayingMusicActivity extends AppCompatActivity {
             thisControl.setImageResource(R.drawable.play);//反之播放
         }
         //所有相关功能的定义
+        if(type==0){
+            musicPlayingType.setImageResource(R.drawable.repeat);
+        }
+        else {
+            musicPlayingType.setImageResource(R.drawable.random);
+        }
         lastMusic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -209,10 +225,26 @@ public class PlayingMusicActivity extends AppCompatActivity {
                 }
             }
         });
+        //点击打开评论界面
+        musicCommit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //打开评论界面
+                Intent intent2=new Intent(PlayingMusicActivity.this,CommentActivity.class);
+                if(myBinder.getId()==null) {
+                    intent2.putExtra("songId", rSongList.get(0).getMusicId());
+                }else{
+                    intent2.putExtra("songId", myBinder.getId());
+                }
+                startActivity(intent2);
+
+            }
+        });
 
     }
 
     public void ListToNext() {
+        handler.removeCallbacksAndMessages(null);
         if (type == 0) {//顺序播放调用功能
             //TODO 多线程实现进度条更改
             if (rSongList.size() > 1) {//当rList有下一首的时候
@@ -228,7 +260,7 @@ public class PlayingMusicActivity extends AppCompatActivity {
                 if (myBinder.isPlaying()) {
                     myBinder.pause();
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
                 }
@@ -250,7 +282,7 @@ public class PlayingMusicActivity extends AppCompatActivity {
                 if (myBinder.isPlaying()) {
                     myBinder.pause();
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
                 }
@@ -283,7 +315,7 @@ public class PlayingMusicActivity extends AppCompatActivity {
                 if (myBinder.isPlaying()) {
                     myBinder.pause();
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
                 }
@@ -305,6 +337,7 @@ public class PlayingMusicActivity extends AppCompatActivity {
     }//上一首
 
     public void ListToLast() {
+        handler.removeCallbacksAndMessages(null);
         if (type == 0) {//顺序播放调用功能
             //播放上一首
             if (lSongList.size() > 0) {//当rList有下一首的时候
@@ -319,7 +352,7 @@ public class PlayingMusicActivity extends AppCompatActivity {
                 }
                 if (myBinder.isPlaying()) {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
                 }
@@ -340,7 +373,7 @@ public class PlayingMusicActivity extends AppCompatActivity {
                 }
                 if (myBinder.isPlaying()) {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
                 }
@@ -367,7 +400,7 @@ public class PlayingMusicActivity extends AppCompatActivity {
                 }
                 if (myBinder.isPlaying()) {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
                 }
@@ -408,9 +441,25 @@ public class PlayingMusicActivity extends AppCompatActivity {
 
             seekBar.setMax(myBinder.getDuration());
             handler.sendEmptyMessage(UPDATE_PROGRESS);
+            if(myBinder.getId()!=null&&myBinder.getId()!=""){
+                Log.i(TAG, "UpUI: getId不为null"+myBinder.getId());
+                lyricsString=ToolsInputLike.getLyrics(myBinder.getId(),MainActivity.HOST_IP,true,PlayingMusicActivity.this);
+                Log.i(TAG, "UpUI: lyrics:"+lyricsString);
+            }
+            else{
+                Log.i(TAG, "UpUI: getId为空"+rSongList.get(0).getMusicId());
+                lyricsString=ToolsInputLike.getLyrics(rSongList.get(0).getMusicId(),MainActivity.HOST_IP,true,PlayingMusicActivity.this);
+                Log.i(TAG, "UpUI: lyrics:"+lyricsString);
+
+            }
+
 
 
         }
 
     }
+
+
+
+
 }

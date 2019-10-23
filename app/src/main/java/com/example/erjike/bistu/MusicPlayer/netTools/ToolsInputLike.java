@@ -207,21 +207,20 @@ public class ToolsInputLike {
     }
 
     //获得歌词
-    public static String getLyrics(String inputId) {
-        return getLyrics(inputId);
+    public static String getLyrics(String inputId,Context context) {
+        return getLyrics(inputId,null,null,context);
     }
 
-    public static String getLyrics(String inputId, String hostWhat, boolean IpTruePortFalse) {
+    public static String getLyrics(String inputId, String hostWhat, boolean IpTruePortFalse,Context context) {
         if (IpTruePortFalse) {
-            return getLyrics(inputId, hostWhat, null);
+            return getLyrics(inputId, hostWhat, null,context);
         } else {
-            return getLyrics(inputId, null, hostWhat);
+            return getLyrics(inputId, null, hostWhat,context);
         }
 
     }
 
-    public static String getLyrics(String inputId, String hostIP, String hostPort) {
-        //TODO 未完成
+    public static String getLyrics(String inputId, String hostIP, String hostPort, final Context context) {
         String mHostIP = "localhost";
         String mHostPort = "3000";
         if (hostIP != null && !hostIP.equals("")) {
@@ -231,8 +230,8 @@ public class ToolsInputLike {
         if (hostPort != null && !hostPort.equals("")) {
             mHostPort = hostPort;
         }
-        String urlString = "http://" + mHostIP + ":" + mHostPort + "/lyric?id=" + inputId;
-        final String[] output = {""};
+        String urlString = "http://" + mHostIP + ":" + mHostPort + "/lyric?id=" + inputId ;
+        Log.i(TAG, "getLyrics: "+urlString);
         HttpUtil.sendOkHttpRequest(urlString, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -245,14 +244,21 @@ public class ToolsInputLike {
                     Gson gson = new Gson();
                     Getlyrics translate = gson.fromJson(response.body().string(), Getlyrics.class);
                     Getlyrics.LrcBean lrcBean = translate.getLrc();
-                    output[0] = lrcBean.getLyric();
+                    Log.i(TAG, "onResponse: "+lrcBean.getLyric());
+                    SharedPreferences sp=context.getSharedPreferences("musicLrc",context.MODE_PRIVATE);
+                    SharedPreferences.Editor ed=sp.edit();
+                    ed.clear();
+                    ed.putString("lrc",lrcBean.getLyric());
+                    ed.commit();
 
                 } catch (Exception e) {
                     Log.e(TAG, "onResponse: error+" + e.getMessage());
                 }
             }
         });
-        return output[0];
+        SharedPreferences sp=context.getSharedPreferences("musicLrc",context.MODE_PRIVATE);
+        Log.i(TAG, "getLyrics: onResponse外："+sp.getString("lrc",""));
+        return sp.getString("lrc","");
     }
     //获得歌曲url
     public static String getMp3Url(String inputId, String hostWhat, boolean IpTruePortFalse,Context context) {
@@ -303,6 +309,12 @@ public class ToolsInputLike {
                 }
             }
         };
+        try {
+
+            TimeUnit.SECONDS.sleep(1);//睡眠一秒从而保证异步内容完成
+        }catch (Exception e){
+            Log.e(TAG, "getSearchSongs: e.Message:"+e.getMessage());
+        }
 
         HttpUtil.sendOkHttpRequest(urlString, callback);
         SharedPreferences sp=context.getSharedPreferences("musicUrl",context.MODE_PRIVATE);

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
@@ -18,6 +19,8 @@ import com.example.erjike.bistu.MusicPlayer.R;
 import com.example.erjike.bistu.MusicPlayer.adapter.ShowSongListAdapter;
 import com.example.erjike.bistu.MusicPlayer.db.ListNameDBHelper;
 import com.example.erjike.bistu.MusicPlayer.db.PlayListDBHelper;
+import com.example.erjike.bistu.MusicPlayer.db.SongListDBHelper;
+import com.example.erjike.bistu.MusicPlayer.filesTool.PlayListSharedPerferences;
 import com.example.erjike.bistu.MusicPlayer.model.ListNameModel;
 import com.example.erjike.bistu.MusicPlayer.model.SearchMusicModel;
 
@@ -52,21 +55,29 @@ public class ShowListFragment extends Fragment {
             musicList.addAll(PlayListDBHelper.getSearchSongList(playDb,getContext()));
             ListNameModel NameModel=new ListNameModel(name,musicList);
             listNameModel.add(NameModel);
+            playListDBHelper.close();
+            playDb.close();
         }
+        dbHelper.close();
+        db.close();//不需要数据后关闭数据库
 
         expandableListView=(ExpandableListView)root.findViewById(R.id.list_of_song_expandableListView);
         expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
                 //点击组菜单时会出现的功能
-                return true;
+                return false;
             }
         });
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
-                //TODO 点击出现的编辑菜单
-                return true;
+                //TODO 实现点击音乐即添加到歌单
+                SearchMusicModel musicModel=new SearchMusicModel();
+                musicModel=listNameModel.get(i).getList().get(i1);
+                PlayListSharedPerferences.addSongToPlayingList(musicModel, getContext());
+                Toast.makeText(getContext(),"已经将"+musicModel.getMusicName()+"添加到歌单中了，下一首播放",Toast.LENGTH_SHORT).show();
+                return false;
             }
         });
         if(adapter==null){

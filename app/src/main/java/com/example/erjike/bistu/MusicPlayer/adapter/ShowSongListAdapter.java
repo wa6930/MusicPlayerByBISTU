@@ -31,6 +31,7 @@ public class ShowSongListAdapter extends BaseExpandableListAdapter {
         TextView musicName;
         TextView artiseName;
         ImageView musicIcon;
+        ImageView moveByList;
 
     }
 
@@ -93,20 +94,19 @@ public class ShowSongListAdapter extends BaseExpandableListAdapter {
             view=mInflater.inflate(R.layout.list_name_show_item,viewGroup,false);
             holderViewFather.title=(TextView)view.findViewById(R.id.list_name_text);
             holderViewFather.listIconType=(ImageView)view.findViewById(R.id.list_icon_type);
-
-
+            view.setTag(holderViewFather);//存储自建类信息，无则报空指针
 
         }
         else {
             holderViewFather=(HolderViewFather)view.getTag();
         }
         //判断箭头向右还是向下
-//        if(b){
-//            holderViewFather.listIconType.setImageResource(R.drawable.down);
-//        }else{
-//            holderViewFather.listIconType.setImageResource(R.drawable.right);
-//
-//        }
+        if(b){
+            holderViewFather.listIconType.setImageResource(R.drawable.down);
+        }else{
+            holderViewFather.listIconType.setImageResource(R.drawable.right);
+
+        }
 
         holderViewFather.title.setText(listname.get(i).getTitle());
         return view;
@@ -123,7 +123,9 @@ public class ShowSongListAdapter extends BaseExpandableListAdapter {
           view=mInflater.inflate(R.layout.music_list_item,viewGroup,false);
           childrenView.musicName=(TextView)view.findViewById(R.id.list_music_name);
           childrenView.artiseName=(TextView)view.findViewById(R.id.list_music_maker);
-          childrenView.musicIcon=(ImageView)view.findViewById(R.id.music_icon);//无空指针情况
+          childrenView.musicIcon=(ImageView)view.findViewById(R.id.music_icon);
+          childrenView.moveByList=(ImageView)view.findViewById(R.id.list_music_move_or_add);
+          view.setTag(childrenView);//存储自建类信息
       }
       else {
           childrenView=(HolderView)view.getTag();
@@ -131,12 +133,20 @@ public class ShowSongListAdapter extends BaseExpandableListAdapter {
       /*
       设置对应的信息
        */
+      final String listName=listname.get(i).getTitle();//Table 名字
       childrenView.musicId=listname.get(i).getList().get(i1).getMusicId();
       childrenView.musicName.setText(listname.get(i).getList().get(i1).getMusicName());
       childrenView.artiseName.setText(listname.get(i).getList().get(i1).getArtiseName());
-      childrenView.musicIcon.setImageURI(Uri.parse(listname.get(i).getList().get(i1).getImagUri()));
-      //TODO 按钮对应点击事件??
-
+      childrenView.musicIcon.setImageURI(Uri.parse(listname.get(i).getList().get(i1).getImagUri()));//实际情况中并不显示图片
+      //按钮对应点击事件
+        childrenView.moveByList.setImageResource(R.drawable.trash_can);//所有删除按钮均为垃圾桶
+        //设置从数据库中删除
+        childrenView.moveByList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //不实现了，与实验要求不重合
+            }
+        });
         return view;
     }
     /*

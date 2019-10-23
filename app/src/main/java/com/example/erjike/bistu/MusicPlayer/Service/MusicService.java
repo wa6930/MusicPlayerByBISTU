@@ -118,8 +118,17 @@ public class MusicService extends Service {
 
     public class MyBinder extends Binder implements Serializable {//实现serializable从而可以通过intent传值
         private SeekBar seekBar;
+        String id=null;
         MediaPlayer mediaPlayer;
         Context context;
+
+        public MediaPlayer getMediaPlayer() {
+            return mediaPlayer;
+        }
+
+        public String getId() {
+            return id;
+        }
 
         public void setContext(Context context) {
             this.context = context;
@@ -129,12 +138,14 @@ public class MusicService extends Service {
             this.mediaPlayer = mediaPlayer;
         }
         public void setNewMediaPlayer(String musicid){
+            id=musicid;
             String url=ToolsInputLike.getMp3Url(musicid,MainActivity.HOST_IP,true,context);
             if(url==null||url.equals("")){
                 Toast.makeText(context,"无该歌曲版权，无法播放",Toast.LENGTH_SHORT).show();
                 //TODO 当下一首为无版权歌曲时，如何操作呢
                 return;
             }
+            closeMedia();
             mediaPlayer=new MediaPlayer();
             mediaPlayer.reset();
             Log.i(TAG, "onBind: url:"+url);
@@ -178,15 +189,13 @@ public class MusicService extends Service {
             myBinder.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
-                    mediaPlayer.stop();//停止播放
-
-                    //TODO audio播放完成后自动触发：需要完成，如果歌单下一首存在，读取歌单下一首歌，创建新的MediaPlayer的操作
+                    closeMedia();
 
                 }
 
             });
 
-            //TODO 实现重新配置mediaPlayer
+            //实现重新配置mediaPlayer
         }
 
         public SeekBar getSeekBar() {
@@ -206,42 +215,60 @@ public class MusicService extends Service {
             true:播放中，false:暂停或者停止
          */
         public boolean isPlaying() {
-            if (mediaPlayer.isPlaying()) return true;
-            else return false;
+            try {
+                if(mediaPlayer!=null){
+                    if (mediaPlayer.isPlaying()) return true;
+                    else return false;
+                }else return false;
+            }
+            catch (Exception e){
+                return false;
+            }
+
+
+
         }
 
 
         //实现具体的播放功能
         //播放
         public void play() {
-            mediaPlayer.start();
-            Log.i(TAG, "play: ");
+            try{
+                mediaPlayer.start();
+                Log.i(TAG, "play: ");
+
+            }catch (Exception e){
+                Log.e(TAG, "play: e"+e.getMessage() );
+            }
 
 
-        }
-
-        //继续播放
-        public void goPray() {
-            mediaPlayer.start();
-
-        }
-
-        public void goNextSong() {
 
         }
+
+
+
 
         //暂停
         public void pause() {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
-                Log.i(TAG, "pause: ");
+            try {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                    Log.i(TAG, "pause: ");
+                }
+            }catch (Exception e){
+                Log.e(TAG, "pause: e"+e.getMessage() );
             }
+
 
         }
 
         //跳转到指定位置
         public void seekToPosition(int position) {
-            mediaPlayer.seekTo(position);
+            try {
+                mediaPlayer.seekTo(position);
+            }catch (Exception e){
+                Log.e(TAG, "seekToPosition: e"+e.getMessage() );
+            }
         }
 
 
@@ -249,12 +276,40 @@ public class MusicService extends Service {
             返回毫秒为单位的播放时间
          */
         public int getCurrenPostion() {
-            return mediaPlayer.getCurrentPosition();
+            try {
+                return mediaPlayer.getCurrentPosition();
+            }catch (Exception e){
+                Log.e(TAG, "getCurrenPostion: e"+e.getMessage() );
+                return 1000;
+            }
+
         }
 
         //返回歌曲的长度，单位为毫秒
         public int getDuration() {
-            return mediaPlayer.getDuration();
+            try {
+                return mediaPlayer.getDuration();
+            }catch (Exception e){
+                Log.e(TAG, "getDuration: e"+e.getMessage() );
+                return 1000;
+            }
+        }
+        /**
+         * 关闭播放器
+         */
+        public void closeMedia() {
+            try {
+                if (mediaPlayer != null) {
+                    if (mediaPlayer.isPlaying()) {
+                        mediaPlayer.stop();
+                    }
+                    mediaPlayer.release();
+                }
+            }
+            catch (Exception e){
+                Log.e(TAG, "closeMedia: e"+e.getMessage() );
+            }
+
         }
 
 

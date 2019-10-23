@@ -28,13 +28,13 @@ public class ListNameDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CRATE_TABLE);
         ContentValues contentValues1=new ContentValues();
-        contentValues1.put(TABLE_LIST1,"默认歌单1");
+        contentValues1.put(TABLE_LIST1,"list1");
         sqLiteDatabase.insert(TABLE_NAME,null,contentValues1);
         ContentValues contentValues2=new ContentValues();
-        contentValues2.put(TABLE_LIST1,"默认歌单2");
+        contentValues2.put(TABLE_LIST1,"list2");
         sqLiteDatabase.insert(TABLE_NAME,null,contentValues2);
         ContentValues contentValues3=new ContentValues();
-        contentValues3.put(TABLE_LIST1,"默认歌单3");
+        contentValues3.put(TABLE_LIST1,"list3");
         sqLiteDatabase.insert(TABLE_NAME,null,contentValues3);
         Toast.makeText(mContext,"创建了新的表单！表单名为"+sqLiteDatabase.getPath(),Toast.LENGTH_LONG).show();
 

@@ -83,9 +83,17 @@ public class SongListFragment extends Fragment {
             switch (msg.what) {
                 case UPDATE_PROGRESS:
                     //实现每隔500毫秒更新一次界面
-                    int positon = myBinder.getCurrenPostion();//毫秒为单位的时间
-                    musicSeekBar.setProgress(positon);
-                    handler.sendEmptyMessageDelayed(UPDATE_PROGRESS, 500);
+                    //if(myBinder.getCurrenPostion()!=null){
+                    try {
+                        int positon = myBinder.getCurrenPostion();//毫秒为单位的时间
+                        musicSeekBar.setProgress(positon);
+                        handler.sendEmptyMessageDelayed(UPDATE_PROGRESS, 500);
+                    }catch (Exception e){
+                        Log.e(TAG, "handleMessage: e"+e.getMessage() );
+                    }
+
+                    //}
+
                     //实现更新进度条的操作
                     //步骤1.更新musicSeekBar
                     break;
@@ -242,6 +250,7 @@ public class SongListFragment extends Fragment {
                         Intent intent=new Intent(getActivity(), PlayingMusicActivity.class);
                         intent.putExtra("binder",myBinder);//传递Binder
                         intent.putExtra("type",type);
+                        intent.putExtra("name",musicName.getText().toString());
                         PlayListSharedPerferences.writeLSharedPerference(lSongList,getContext());
                         PlayListSharedPerferences.writeRSharedPerference(rSongList,getContext());
                         //每次切换到别的activit时都会保存一次链表，从而与本地同步
@@ -356,6 +365,7 @@ public class SongListFragment extends Fragment {
     }
 
     public void ListToNext() {
+        handler.removeCallbacksAndMessages(null);//停止更新线程
         if (type == 0) {//顺序播放调用功能
             //TODO 多线程实现进度条更改
             if (rSongList.size() > 1) {//当rList有下一首的时候
@@ -371,7 +381,7 @@ public class SongListFragment extends Fragment {
                 if (myBinder.isPlaying()) {
                     myBinder.pause();
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
                 }
@@ -394,7 +404,7 @@ public class SongListFragment extends Fragment {
                 if (myBinder.isPlaying()) {
                     myBinder.pause();
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
                 }
@@ -428,7 +438,7 @@ public class SongListFragment extends Fragment {
                 if (myBinder.isPlaying()) {
                     myBinder.pause();
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
                 }
@@ -451,6 +461,7 @@ public class SongListFragment extends Fragment {
     }
 
     public void ListToLast() {
+        handler.removeCallbacksAndMessages(null);//停止更新线程
         if (type == 0) {//顺序播放调用功能
             //播放上一首
             if (lSongList.size() > 0) {//当rList有下一首的时候
@@ -465,7 +476,7 @@ public class SongListFragment extends Fragment {
                 }
                 if (myBinder.isPlaying()) {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());//添加歌曲
                 }
@@ -486,7 +497,7 @@ public class SongListFragment extends Fragment {
                 }
                 if (myBinder.isPlaying()) {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
                 }
@@ -513,7 +524,7 @@ public class SongListFragment extends Fragment {
                 }
                 if (myBinder.isPlaying()) {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
-                    myBinder.isPlaying();
+                    myBinder.play();
                 } else {
                     myBinder.setNewMediaPlayer(rSongList.get(0).getMusicId());
                 }
