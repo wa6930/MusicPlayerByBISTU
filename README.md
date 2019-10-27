@@ -48,7 +48,7 @@ GitHub项目地址:https://github.com/wa6930/MusicPlayerByBISTU
 
 配置好运行环境后，使用该API的默认设置运行，手机连接其本地ip
 
-![image-20191023115024301](/Users/wangxiao/Library/Application Support/typora-user-images/image-20191023115024301.png)
+![image-20191023115024301](图片 0.png)
 
 本实验中所有的搜索、音乐、歌词均为从API中获得
 
