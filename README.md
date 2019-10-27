@@ -68,15 +68,15 @@ com.example.erjike.bistu.MusicPlayer
 > >
 > > ShowSongListAdapter(歌单显示adapter)
 
-	> db(SQlite类的数据库与工具)
-	>
-	> > ListNameDBHelper(歌单一级数据库)
-	> >
-	> > PlayListDBHelper(当前歌单的存储)
-	> >
-	> > SearchAllSongLIstDBHelper(搜索本地存储)
-	> >
-	> > SongListDBHelper(存储本地歌单)
+> db(SQlite类的数据库与工具)
+>
+> > ListNameDBHelper(歌单一级数据库)
+> >
+> > PlayListDBHelper(当前歌单的存储)
+> >
+> > SearchAllSongLIstDBHelper(搜索本地存储)
+> >
+> > SongListDBHelper(存储本地歌单)
 
 > filesTool(SharedPerferences工具类)
 >
