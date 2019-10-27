@@ -54,7 +54,7 @@ GitHub项目地址:https://github.com/wa6930/MusicPlayerByBISTU
 
 ###3.2.各文件功能说明
 
-<img src="/Users/wangxiao/Library/Application Support/typora-user-images/image-20191023142319822.png" alt="image-20191023142319822" style="zoom:50%;" />
+<img src="https://github.com/wa6930/MusicPlayerByBISTU/blob/master/%E5%9B%BE%E7%89%87%201.png" style="zoom:50%;" />
 
 com.example.erjike.bistu.MusicPlayer
 
@@ -161,13 +161,13 @@ com.example.erjike.bistu.MusicPlayer
 
 设计后的播放页面如下：
 
-<img src="/Users/wangxiao/Library/Application Support/typora-user-images/image-20191023134909412.png" alt="image-20191023134909412" style="zoom:30%;" />
+<img src="https://github.com/wa6930/MusicPlayerByBISTU/blob/master/%E5%9B%BE%E7%89%87%202.png" alt="image-20191023134909412" style="zoom:30%;" />
 
 播放界面设计如图：
 
-![设计=音乐播放器-3](/Users/wangxiao/Downloads/设计=音乐播放器-3.jpg)设计后的播放界面如下：
+![设计=音乐播放器-3](https://github.com/wa6930/MusicPlayerByBISTU/blob/master/%E5%9B%BE%E7%89%87%203.png)设计后的播放界面如下：
 
-<img src="/Users/wangxiao/Library/Application Support/typora-user-images/image-20191023135008893.png" alt="image-20191023135008893" style="zoom:30%;" />
+<img src="https://github.com/wa6930/MusicPlayerByBISTU/blob/master/%E5%9B%BE%E7%89%87%204.png" alt="image-20191023135008893" style="zoom:30%;" />
 
 #### 3.4.2底层逻辑设计
 
@@ -175,7 +175,7 @@ com.example.erjike.bistu.MusicPlayer
 
 底层数据库结构如图，读取后的每一项加载为SearchMusicModel类的数据，其中歌曲id为主键，歌单名主键为歌单名。歌单名还是每个歌单的文件名。
 
-![type](/Users/wangxiao/Downloads/type.png)
+![type](https://github.com/wa6930/MusicPlayerByBISTU/blob/master/%E5%9B%BE%E7%89%87%205.png)
 
 数据库最后使用的只有歌曲id和歌名，其他的均为默认值或者空值。并且播放列表最后使用了SharedPererence实现。
 
@@ -383,9 +383,9 @@ lyrics.loadLrc(lyricsString);
 
 测试成功，歌曲成功的添加到了播放列表与歌单中。
 
-<img src="/Users/wangxiao/Library/Application Support/typora-user-images/image-20191023153856676.png" alt="image-20191023153856676" style="zoom:30%;" />
+<img src="https://github.com/wa6930/MusicPlayerByBISTU/blob/master/%E5%9B%BE%E7%89%87%206.png" alt="image-20191023153856676" style="zoom:30%;" />
 
-<img src="/Users/wangxiao/Library/Application Support/typora-user-images/image-20191023153948595.png" alt="image-20191023153948595" style="zoom:30%;" />
+<img src="https://github.com/wa6930/MusicPlayerByBISTU/blob/master/%E5%9B%BE%E7%89%87%207.png" alt="image-20191023153948595" style="zoom:30%;" />
 
 #### 3.6.2.播放内容测试
 
@@ -411,7 +411,7 @@ lyrics.loadLrc(lyricsString);
 
 测试成功，动画正常播放
 
-<img src="/Users/wangxiao/Library/Application Support/typora-user-images/image-20191023155521939.png" alt="image-20191023155521939" style="zoom:30%;" />
+<img src="https://github.com/wa6930/MusicPlayerByBISTU/blob/master/%E5%9B%BE%E7%89%87%208.png" alt="image-20191023155521939" style="zoom:30%;" />
 
 ## 4.问题分析
 
